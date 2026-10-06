@@ -1,8 +1,7 @@
-
 "use client";
 
+import { preload } from "react-dom";
 import { useLayoutEffect, useRef, useState } from "react";
-
 import gsap from "gsap";
 
 import { heroSlides } from "@/data/hero";
@@ -20,10 +19,15 @@ const HEADING_ENTER_AT = 0.6;
 const REVERSE_REVEAL = 0.32;
 const CINEMATIC_SCALE = 1.045;
 
+preload(heroSlides[0].image, {
+  as: "image",
+});
+
 export function Hero() {
   const rootRef = useRef<HTMLDivElement>(null);
   const layerARef = useRef<HTMLDivElement>(null);
   const layerBRef = useRef<HTMLDivElement>(null);
+
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -47,10 +51,7 @@ export function Hero() {
         setActive(index);
       };
 
-      const hideHeading = (
-        tl: gsap.core.Timeline,
-        time: number,
-      ) => {
+      const hideHeading = (tl: gsap.core.Timeline, time: number) => {
         tl.to(
           eyebrow,
           {
@@ -173,6 +174,7 @@ export function Hero() {
         ) => {
           const outgoing = currentLayer;
           const incoming = nextLayer;
+
           const start = loop.duration();
           const forward = direction === "forward";
 
@@ -207,9 +209,7 @@ export function Hero() {
             {
               clipPath: "inset(0% 0% 0% 0%)",
               duration,
-              ease: forward
-                ? "power3.inOut"
-                : "power4.inOut",
+              ease: forward ? "power3.inOut" : "power4.inOut",
             },
             start,
           );
@@ -226,11 +226,9 @@ export function Hero() {
           );
 
           if (forward) {
-            const headingOutTime =
-              start + duration * HEADING_EXIT_AT;
+            const headingOutTime = start + duration * HEADING_EXIT_AT;
 
-            const headingInTime =
-              start + duration * HEADING_ENTER_AT;
+            const headingInTime = start + duration * HEADING_ENTER_AT;
 
             hideHeading(loop, headingOutTime);
 
@@ -261,10 +259,7 @@ export function Hero() {
               headingInTime,
             );
 
-            showHeading(
-              loop,
-              headingInTime,
-            );
+            showHeading(loop, headingInTime);
           }
 
           loop.set(
@@ -303,45 +298,17 @@ export function Hero() {
           },
         );
 
-        transition(
-          1,
-          "forward",
-          IMAGE_REVEAL,
-          IMAGE_HOLD,
-        );
+        transition(1, "forward", IMAGE_REVEAL, IMAGE_HOLD);
 
-        transition(
-          2,
-          "forward",
-          IMAGE_REVEAL,
-          IMAGE_HOLD,
-        );
+        transition(2, "forward", IMAGE_REVEAL, IMAGE_HOLD);
 
-        transition(
-          3,
-          "forward",
-          IMAGE_REVEAL,
-          IMAGE_HOLD,
-        );
+        transition(3, "forward", IMAGE_REVEAL, IMAGE_HOLD);
 
-        hideHeading(
-          loop,
-          loop.duration(),
-        );
+        hideHeading(loop, loop.duration());
 
-        transition(
-          2,
-          "reverse",
-          REVERSE_REVEAL,
-          0,
-        );
+        transition(2, "reverse", REVERSE_REVEAL, 0);
 
-        transition(
-          1,
-          "reverse",
-          REVERSE_REVEAL,
-          0,
-        );
+        transition(1, "reverse", REVERSE_REVEAL, 0);
 
         const imageOneStart = loop.duration();
 
@@ -417,8 +384,7 @@ export function Hero() {
         currentLayer = incoming;
         nextLayer = outgoing;
 
-        const imageOneHeadingStart =
-          imageOneStart + REVERSE_REVEAL + 0.03;
+        const imageOneHeadingStart = imageOneStart + REVERSE_REVEAL + 0.03;
 
         loop.call(
           () => {
@@ -447,11 +413,7 @@ export function Hero() {
           imageOneHeadingStart,
         );
 
-        showHeading(
-          loop,
-          imageOneHeadingStart,
-          0.55,
-        );
+        showHeading(loop, imageOneHeadingStart, 0.55);
 
         loop.to(
           {},
@@ -529,7 +491,7 @@ export function Hero() {
           </p>
 
           <p className="mt-2 text-xs tracking-[0.2em] text-white/85">
-            ESTORA
+            SM BUILDERS
           </p>
         </div>
 
@@ -543,9 +505,7 @@ export function Hero() {
               <span
                 key={item.id}
                 className={`h-px transition-all duration-700 ${
-                  index === active
-                    ? "w-8 bg-white"
-                    : "w-3 bg-white/30"
+                  index === active ? "w-8 bg-white" : "w-3 bg-white/30"
                 }`}
               />
             ))}

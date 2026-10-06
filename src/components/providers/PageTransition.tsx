@@ -1,93 +1,158 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
 import gsap from "gsap";
 
+const SESSION_KEY = "sm-builders-entrance-seen";
+
 export function PageTransition() {
-  const transitionRef = useRef<HTMLDivElement | null>(null);
-  const pathname = usePathname();
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const topLineRef = useRef<HTMLDivElement>(null);
+  const bottomLineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = transitionRef.current;
+    const overlay = overlayRef.current;
 
-    if (!el) return;
+    if (!overlay) return;
 
-    gsap.set(el, {
-      yPercent: 100,
-    });
+    const navigationEntry = performance.getEntriesByType("navigation")[0] as
+      | PerformanceNavigationTiming
+      | undefined;
 
-    gsap.to(el, {
-      yPercent: 0,
-      duration: 0.65,
-      ease: "power3.inOut",
-      onComplete: () => {
-        gsap.set(el, {
-          yPercent: -100,
-        });
+    const isReload = navigationEntry?.type === "reload";
+    const hasSeenEntrance = sessionStorage.getItem(SESSION_KEY) === "true";
 
-        gsap.to(el, {
-          yPercent: 0,
-          duration: 0.75,
+    // Refresh → never show entrance animation.
+    if (isReload || hasSeenEntrance) {
+      overlay.style.display = "none";
+      return;
+    }
+
+    // Mark this browser tab/session as visited.
+    sessionStorage.setItem(SESSION_KEY, "true");
+
+    const logo = logoRef.current;
+    const line = lineRef.current;
+    const topLine = topLineRef.current;
+    const bottomLine = bottomLineRef.current;
+
+    if (!logo || !line || !topLine || !bottomLine) return;
+
+    const ctx = gsap.context(() => {
+      gsap.set(logo, {
+        opacity: 0,
+        y: 18,
+        scale: 0.96,
+        letterSpacing: "0.5em",
+      });
+
+      gsap.set(line, {
+        scaleX: 0,
+      });
+
+      gsap.set([topLine, bottomLine], {
+        scaleX: 0,
+      });
+
+      const tl = gsap.timeline({
+        defaults: {
           ease: "power3.inOut",
-        });
-      },
-    });
-  }, [pathname]);
-
-  useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      const link = target.closest("a");
-
-      if (!link) return;
-
-      const href = link.getAttribute("href");
-
-      if (!href || href.startsWith("#")) return;
-      if (href.startsWith("http")) return;
-      if (href.startsWith("mailto:")) return;
-      if (href.startsWith("tel:")) return;
-      if (link.target === "_blank") return;
-
-      const currentPath = window.location.pathname;
-      const targetPath = new URL(href, window.location.origin).pathname;
-
-      if (currentPath === targetPath) return;
-
-      event.preventDefault();
-
-      const el = transitionRef.current;
-
-      if (!el) {
-        window.location.href = href;
-        return;
-      }
-
-      gsap.killTweensOf(el);
-
-      gsap.to(el, {
-        yPercent: 0,
-        duration: 0.65,
-        ease: "power3.inOut",
-        onComplete: () => {
-          window.location.href = href;
         },
       });
-    };
 
-    document.addEventListener("click", handleClick);
+      tl.to(logo, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        letterSpacing: "0.3em",
+        duration: 0.9,
+      })
+        .to(
+          line,
+          {
+            scaleX: 1,
+            duration: 0.7,
+          },
+          "-=0.45",
+        )
+        .to(
+          topLine,
+          {
+            scaleX: 1,
+            duration: 0.8,
+          },
+          "-=0.5",
+        )
+        .to(
+          bottomLine,
+          {
+            scaleX: 1,
+            duration: 0.8,
+          },
+          "<",
+        )
+        .to({}, { duration: 0.4 })
+        .to(logo, {
+          opacity: 0,
+          y: -10,
+          duration: 0.45,
+          ease: "power2.in",
+        })
+        .to(
+          line,
+          {
+            scaleX: 0,
+            duration: 0.4,
+          },
+          "<",
+        )
+        .to(
+          overlay,
+          {
+            yPercent: -100,
+            duration: 1.05,
+            ease: "power4.inOut",
+          },
+          "-=0.05",
+        )
+        .set(overlay, {
+          display: "none",
+        });
+    }, overlayRef);
 
-    return () => {
-      document.removeEventListener("click", handleClick);
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
     <div
-      ref={transitionRef}
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[100] bg-[#171717]"
-    />
+      ref={overlayRef}
+      className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#11110f]"
+    >
+      <div
+        ref={topLineRef}
+        className="absolute left-0 top-0 h-px w-full origin-left bg-white/10"
+      />
+
+      <div
+        ref={bottomLineRef}
+        className="absolute bottom-0 right-0 h-px w-full origin-right bg-white/10"
+      />
+
+      <div className="relative flex flex-col items-center">
+        <div
+          ref={logoRef}
+          className="whitespace-nowrap text-[clamp(1rem,2vw,1.4rem)] font-medium uppercase text-white"
+        >
+          SM BUILDERS
+        </div>
+
+        <div
+          ref={lineRef}
+          className="mt-5 h-px w-24 origin-center bg-white/40"
+        />
+      </div>
+    </div>
   );
 }
