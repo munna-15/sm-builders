@@ -136,11 +136,11 @@ export function PageLoader() {
 
       {/* Top Information */}
       <div className="absolute left-8 right-8 top-8 flex items-center justify-between md:left-12 md:right-12 md:top-12">
-        <span className="text-[7px] uppercase tracking-[0.35em] text-[#171717]/30">
+        <span className="text-[11px] uppercase tracking-[0.35em] text-[#171717]/30">
           Property
         </span>
 
-        <span className="text-[7px] uppercase tracking-[0.35em] text-[#171717]/30">
+        <span className="text-[11px] uppercase tracking-[0.35em] text-[#171717]/30">
           2026
         </span>
       </div>
@@ -152,7 +152,7 @@ export function PageLoader() {
       >
         <div className="w-[min(420px,80vw)]">
           <div className="mb-8 text-center">
-            <p className="text-[10px] font-medium uppercase tracking-[0.52em] text-[#171717]">
+            <p className="text-[16px] font-medium uppercase tracking-[0.52em] text-[#171717]">
               SM BUILDERS
             </p>
           </div>
@@ -170,12 +170,12 @@ export function PageLoader() {
             <div className="flex items-center gap-3">
               <span className="h-[3px] w-[3px] rounded-full bg-[#171717]/40" />
 
-              <span className="text-[8px] uppercase tracking-[0.3em] text-[#171717]/45">
+              <span className="text-[14px] uppercase tracking-[0.3em] text-[#171717]/45">
                 Real Estate
               </span>
             </div>
 
-            <span className="text-[8px] uppercase tracking-[0.3em] text-[#171717]/45">
+            <span className="text-[14px] uppercase tracking-[0.3em] text-[#171717]/45">
               Mymensingh
             </span>
           </div>
@@ -184,11 +184,11 @@ export function PageLoader() {
 
       {/* Bottom Information */}
       <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between md:bottom-12 md:left-12 md:right-12">
-        <span className="text-[7px] uppercase tracking-[0.35em] text-[#171717]/25">
+        <span className="text-[12px] uppercase tracking-[0.35em] text-[#171717]/25">
           Development · Quality · Trust
         </span>
 
-        <span className="text-[7px] uppercase tracking-[0.35em] text-[#171717]/25">
+        <span className="text-[12px] uppercase tracking-[0.35em] text-[#171717]/25">
           SM
         </span>
       </div>
