@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
+import { PageLoader } from "@/components/providers/PageLoader";
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
-import { PageTransition } from "@/components/providers/PageTransition";
 
 import "./globals.css";
 
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <PageTransition />
+        <PageLoader />
         <SmoothScroll />
         <Navbar />
         {children}

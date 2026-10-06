@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+
 import Lenis from "lenis";
 
 export function SmoothScroll() {
@@ -17,10 +18,11 @@ export function SmoothScroll() {
       });
     };
 
-    window.addEventListener("estora-scroll-top", handleScrollTop);
+    window.addEventListener("sm-builders-scroll-top", handleScrollTop);
 
     return () => {
-      window.removeEventListener("estora-scroll-top", handleScrollTop);
+      window.removeEventListener("sm-builders-scroll-top", handleScrollTop);
+
       lenis.destroy();
     };
   }, []);
