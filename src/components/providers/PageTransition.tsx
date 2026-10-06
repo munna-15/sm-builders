@@ -1,102 +1,123 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-const SESSION_KEY = "sm-builders-entrance-seen";
+const STORAGE_KEY = "sm-builders-intro-completed";
 
 export function PageTransition() {
+  const [visible, setVisible] = useState(false);
+  const [checked, setChecked] = useState(false);
+
   const overlayRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
-  const topLineRef = useRef<HTMLDivElement>(null);
-  const bottomLineRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const sweepRef = useRef<HTMLDivElement>(null);
+
+  const hasPlayed = useRef(false);
 
   useEffect(() => {
-    const overlay = overlayRef.current;
+    const completed = localStorage.getItem(STORAGE_KEY);
 
-    if (!overlay) return;
-
-    const navigationEntry = performance.getEntriesByType("navigation")[0] as
-      | PerformanceNavigationTiming
-      | undefined;
-
-    const isReload = navigationEntry?.type === "reload";
-    const hasSeenEntrance = sessionStorage.getItem(SESSION_KEY) === "true";
-
-    // Refresh → never show entrance animation.
-    if (isReload || hasSeenEntrance) {
-      overlay.style.display = "none";
-      return;
+    if (!completed) {
+      setVisible(true);
     }
 
-    // Mark this browser tab/session as visited.
-    sessionStorage.setItem(SESSION_KEY, "true");
+    setChecked(true);
+  }, []);
 
+  useEffect(() => {
+    if (!visible || !checked || hasPlayed.current) return;
+
+    const overlay = overlayRef.current;
     const logo = logoRef.current;
     const line = lineRef.current;
-    const topLine = topLineRef.current;
-    const bottomLine = bottomLineRef.current;
+    const frame = frameRef.current;
+    const sweep = sweepRef.current;
 
-    if (!logo || !line || !topLine || !bottomLine) return;
+    if (!overlay || !logo || !line || !frame || !sweep) return;
+
+    hasPlayed.current = true;
 
     const ctx = gsap.context(() => {
       gsap.set(logo, {
         opacity: 0,
-        y: 18,
-        scale: 0.96,
-        letterSpacing: "0.5em",
+        y: 24,
+        scale: 0.94,
+        letterSpacing: "0.55em",
       });
 
       gsap.set(line, {
         scaleX: 0,
       });
 
-      gsap.set([topLine, bottomLine], {
-        scaleX: 0,
+      gsap.set(frame, {
+        opacity: 0,
+        scale: 0.94,
+      });
+
+      gsap.set(sweep, {
+        xPercent: -120,
+        opacity: 0,
       });
 
       const tl = gsap.timeline({
         defaults: {
           ease: "power3.inOut",
         },
+        onComplete: () => {
+          localStorage.setItem(STORAGE_KEY, "true");
+          setVisible(false);
+        },
       });
 
-      tl.to(logo, {
+      tl.to(frame, {
         opacity: 1,
-        y: 0,
         scale: 1,
-        letterSpacing: "0.3em",
-        duration: 0.9,
+        duration: 0.8,
+        ease: "power2.out",
       })
+        .to(logo, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          letterSpacing: "0.28em",
+          duration: 1,
+          ease: "power3.out",
+        })
         .to(
           line,
           {
             scaleX: 1,
-            duration: 0.7,
-          },
-          "-=0.45",
-        )
-        .to(
-          topLine,
-          {
-            scaleX: 1,
-            duration: 0.8,
+            duration: 0.75,
           },
           "-=0.5",
         )
         .to(
-          bottomLine,
+          sweep,
           {
-            scaleX: 1,
-            duration: 0.8,
+            xPercent: 120,
+            opacity: 1,
+            duration: 1,
+            ease: "power2.inOut",
           },
-          "<",
+          "-=0.2",
         )
-        .to({}, { duration: 0.4 })
+        .to(sweep, {
+          opacity: 0,
+          duration: 0.2,
+        })
+        .to(
+          {},
+          {
+            duration: 0.45,
+          },
+        )
         .to(logo, {
           opacity: 0,
-          y: -10,
+          y: -12,
+          letterSpacing: "0.4em",
           duration: 0.45,
           ease: "power2.in",
         })
@@ -109,21 +130,27 @@ export function PageTransition() {
           "<",
         )
         .to(
-          overlay,
+          frame,
           {
-            yPercent: -100,
-            duration: 1.05,
-            ease: "power4.inOut",
+            opacity: 0,
+            scale: 1.04,
+            duration: 0.45,
           },
-          "-=0.05",
+          "-=0.2",
         )
-        .set(overlay, {
-          display: "none",
+        .to(overlay, {
+          yPercent: -100,
+          duration: 1.15,
+          ease: "power4.inOut",
         });
     }, overlayRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [visible, checked]);
+
+  if (!checked || !visible) {
+    return null;
+  }
 
   return (
     <div
@@ -131,27 +158,38 @@ export function PageTransition() {
       className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#11110f]"
     >
       <div
-        ref={topLineRef}
-        className="absolute left-0 top-0 h-px w-full origin-left bg-white/10"
+        ref={frameRef}
+        className="absolute inset-[7%] border border-white/[0.08]"
       />
 
-      <div
-        ref={bottomLineRef}
-        className="absolute bottom-0 right-0 h-px w-full origin-right bg-white/10"
-      />
+      <div className="absolute left-[7%] top-[7%] h-8 w-8 border-l border-t border-white/20" />
+
+      <div className="absolute right-[7%] top-[7%] h-8 w-8 border-r border-t border-white/20" />
+
+      <div className="absolute bottom-[7%] left-[7%] h-8 w-8 border-b border-l border-white/20" />
+
+      <div className="absolute bottom-[7%] right-[7%] h-8 w-8 border-b border-r border-white/20" />
 
       <div className="relative flex flex-col items-center">
         <div
           ref={logoRef}
-          className="whitespace-nowrap text-[clamp(1rem,2vw,1.4rem)] font-medium uppercase text-white"
+          className="relative whitespace-nowrap text-[clamp(1.1rem,2.2vw,1.55rem)] font-medium uppercase text-white"
         >
           SM BUILDERS
+          <div
+            ref={sweepRef}
+            className="pointer-events-none absolute inset-y-[-50%] left-[-30%] w-[20%] skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/40 to-transparent blur-[3px]"
+          />
         </div>
 
         <div
           ref={lineRef}
-          className="mt-5 h-px w-24 origin-center bg-white/40"
+          className="mt-5 h-px w-28 origin-center bg-white/50"
         />
+
+        <p className="mt-4 text-[9px] uppercase tracking-[0.45em] text-white/35">
+          Real Estate · Development
+        </p>
       </div>
     </div>
   );

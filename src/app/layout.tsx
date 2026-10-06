@@ -3,10 +3,9 @@ import type { Metadata } from "next";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
-
+import { PageTransition } from "@/components/providers/PageTransition";
 
 import "./globals.css";
-import { PageTransition } from "@/components/providers/PageTransition";
 
 export const metadata: Metadata = {
   title: "SM Builders — Real Estate & Development",
@@ -22,12 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <PageTransition />
-
         <SmoothScroll />
         <Navbar />
-
         {children}
-
         <FloatingWhatsApp />
       </body>
     </html>
