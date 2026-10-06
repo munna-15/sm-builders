@@ -1,14 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
-const STORAGE_KEY = "sm-builders-intro-completed";
-
 export function PageTransition() {
-  const [visible, setVisible] = useState(false);
-  const [checked, setChecked] = useState(false);
-
   const overlayRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
@@ -18,17 +13,7 @@ export function PageTransition() {
   const hasPlayed = useRef(false);
 
   useEffect(() => {
-    const completed = localStorage.getItem(STORAGE_KEY);
-
-    if (!completed) {
-      setVisible(true);
-    }
-
-    setChecked(true);
-  }, []);
-
-  useEffect(() => {
-    if (!visible || !checked || hasPlayed.current) return;
+    if (hasPlayed.current) return;
 
     const overlay = overlayRef.current;
     const logo = logoRef.current;
@@ -67,15 +52,16 @@ export function PageTransition() {
           ease: "power3.inOut",
         },
         onComplete: () => {
-          localStorage.setItem(STORAGE_KEY, "true");
-          setVisible(false);
+          gsap.set(overlay, {
+            display: "none",
+          });
         },
       });
 
       tl.to(frame, {
         opacity: 1,
         scale: 1,
-        duration: 0.8,
+        duration: 0.7,
         ease: "power2.out",
       })
         .to(logo, {
@@ -83,23 +69,23 @@ export function PageTransition() {
           y: 0,
           scale: 1,
           letterSpacing: "0.28em",
-          duration: 1,
+          duration: 0.9,
           ease: "power3.out",
         })
         .to(
           line,
           {
             scaleX: 1,
-            duration: 0.75,
+            duration: 0.7,
           },
-          "-=0.5",
+          "-=0.45",
         )
         .to(
           sweep,
           {
             xPercent: 120,
             opacity: 1,
-            duration: 1,
+            duration: 0.95,
             ease: "power2.inOut",
           },
           "-=0.2",
@@ -111,21 +97,21 @@ export function PageTransition() {
         .to(
           {},
           {
-            duration: 0.45,
+            duration: 0.35,
           },
         )
         .to(logo, {
           opacity: 0,
           y: -12,
           letterSpacing: "0.4em",
-          duration: 0.45,
+          duration: 0.4,
           ease: "power2.in",
         })
         .to(
           line,
           {
             scaleX: 0,
-            duration: 0.4,
+            duration: 0.35,
           },
           "<",
         )
@@ -134,23 +120,19 @@ export function PageTransition() {
           {
             opacity: 0,
             scale: 1.04,
-            duration: 0.45,
+            duration: 0.4,
           },
           "-=0.2",
         )
         .to(overlay, {
           yPercent: -100,
-          duration: 1.15,
+          duration: 1,
           ease: "power4.inOut",
         });
     }, overlayRef);
 
     return () => ctx.revert();
-  }, [visible, checked]);
-
-  if (!checked || !visible) {
-    return null;
-  }
+  }, []);
 
   return (
     <div
